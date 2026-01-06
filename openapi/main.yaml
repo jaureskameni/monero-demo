@@ -1,0 +1,52 @@
+---
+openapi: "3.0.3"
+info:
+  title: "MONERO-DEMO"
+  description: "REST API endpoints for MONERO-DEMO"
+  version: "2026-W2"
+servers:
+  - url: "http"
+tags:
+  - name: "monero"
+    description: "monero operations"
+paths:
+  /crypto-wallet-address:
+    post:
+      tags:
+        - "CryptoWalletAddress"
+      summary: "Create a new MONERO Address"
+      description: "Acquire a new Address inside the underlying Wallet"
+      operationId: "createCryptoWalletAddress"
+      parameters:
+        - name: "currency"
+          in: "path"
+          description: "crypto currency"
+          required: true
+          schema:
+            $ref: "#/components/schemas/CryptoCurrencyTypeDTO"
+      responses:
+        "201":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CryptoWalletAddressResponseDTO"
+components:
+  schemas:
+    CryptoWalletAddressResponseDTO:
+      type: "object"
+      required:
+        - "id"
+        - "value"
+        - "type"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        value:
+          type: "string"
+        type:
+          $ref: "#/components/schemas/CryptoCurrencyTypeDTO"
+    CryptoCurrencyTypeDTO:
+      enum:
+        - "MONERO"
