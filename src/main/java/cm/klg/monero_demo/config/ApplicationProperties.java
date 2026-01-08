@@ -8,11 +8,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @ConfigurationProperties(prefix = "monero")
 public class ApplicationProperties {
-  private RpcProperties rpcProperties = new RpcProperties();
+  private RpcProperties rpc = new RpcProperties();
 
   @Setter
   @Getter
   public static class RpcProperties {
     private String url;
+    private String username;
+    private String password;
   }
 }

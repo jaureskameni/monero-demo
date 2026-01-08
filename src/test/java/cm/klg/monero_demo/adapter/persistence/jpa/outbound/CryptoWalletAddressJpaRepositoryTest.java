@@ -1,7 +1,6 @@
 package cm.klg.monero_demo.adapter.persistence.jpa.outbound;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import cm.klg.monero_demo.domain.cryptocurrency.CryptoCurrency;
@@ -28,8 +27,7 @@ class CryptoWalletAddressJpaRepositoryTest {
   void save_shouldCallSpringRepository_whenSuccessful() {
     // Given
     CryptoWalletAddress cryptoWalletAddress =
-        CryptoWalletAddress.of(
-            new CryptoWalletAddressValue("some-address"), CryptoCurrency.XMR);
+        CryptoWalletAddress.of(new CryptoWalletAddressValue("some-address"), CryptoCurrency.XMR);
     CryptoWalletAddressJpa jpaEntity = new CryptoWalletAddressJpa();
 
     when(jpaMapper.fromCryptoWalletAddress(cryptoWalletAddress)).thenReturn(jpaEntity);

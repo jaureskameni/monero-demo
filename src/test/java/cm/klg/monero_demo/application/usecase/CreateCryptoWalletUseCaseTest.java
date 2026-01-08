@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import cm.klg.monero_demo.application.outbound.CryptoWalletAddressRepository;
 import cm.klg.monero_demo.application.outbound.MoneroWalletClient;
+import cm.klg.monero_demo.domain.cryptocurrency.CryptoCurrency;
 import cm.klg.monero_demo.domain.cryptocurrency.CryptoWalletAddress;
 import cm.klg.monero_demo.domain.exception.MoneroRpcException;
 import cm.klg.monero_demo.domain.exception.ResourceAlreadyExistsException;
@@ -27,52 +28,50 @@ class CreateCryptoWalletUseCaseTest {
   @Test
   void create_shouldReturnResponse_whenSuccessful() {
     // Given
-    String name = "test-wallet";
+      CryptoCurrency currency = CryptoCurrency.XMR;
     String address = "some-monero-address";
-    when(moneroWalletClient.createSubAddress(name)).thenReturn(address);
+    when(moneroWalletClient.createSubAddress(currency.name())).thenReturn(address);
     doNothing().when(cryptoWalletAddressRepository).save(any(CryptoWalletAddress.class));
 
     // When
-    CreateCryptoWalletUseCase.Response response = createCryptoWalletUseCase.create(name);
+    CreateCryptoWalletUseCase.CryptoWalletResponse response = createCryptoWalletUseCase.create(currency);
 
     // Then
     assertNotNull(response);
-    assertEquals(address, response.value());
-    assertEquals("XMR", response.type());
+    assertEquals(address, response.walletAddressValue());
+    assertEquals("XMR", response.currencyType());
     assertNotNull(response.id());
-    verify(moneroWalletClient, times(1)).createSubAddress(name);
+    verify(moneroWalletClient, times(1)).createSubAddress(currency.name());
     verify(cryptoWalletAddressRepository, times(1)).save(any(CryptoWalletAddress.class));
   }
 
   @Test
   void create_shouldThrowMoneroRpcException_whenClientFails() {
     // Given
-    String name = "test-wallet";
-    when(moneroWalletClient.createSubAddress(name))
+      CryptoCurrency currency = CryptoCurrency.XMR;
+    when(moneroWalletClient.createSubAddress(currency.name()))
         .thenThrow(new MoneroRpcException("RPC call failed"));
 
     // When & Then
-    assertThrows(MoneroRpcException.class, () -> createCryptoWalletUseCase.create(name));
+    assertThrows(MoneroRpcException.class, () -> createCryptoWalletUseCase.create(currency));
     verify(cryptoWalletAddressRepository, never()).save(any(CryptoWalletAddress.class));
   }
 
   @Test
   void create_shouldThrowExceptionAndLog_whenRepositoryFails() {
     // Given
-    String name = "test-wallet";
+      CryptoCurrency currency = CryptoCurrency.XMR;
     String address = "some-monero-address";
-    when(moneroWalletClient.createSubAddress(name)).thenReturn(address);
+    when(moneroWalletClient.createSubAddress(currency.name())).thenReturn(address);
     doThrow(new ResourceAlreadyExistsException("Already exists"))
         .when(cryptoWalletAddressRepository)
         .save(any(CryptoWalletAddress.class));
 
     // When & Then
     assertThrows(
-        ResourceAlreadyExistsException.class, () -> createCryptoWalletUseCase.create(name));
+        ResourceAlreadyExistsException.class, () -> createCryptoWalletUseCase.create(currency));
 
-    // Verification of the critical log message for orphaned addresses would ideally be done here.
-    // This typically requires a test-specific log appender.
-    verify(moneroWalletClient, times(1)).createSubAddress(name);
+    verify(moneroWalletClient, times(1)).createSubAddress(currency.name());
     verify(cryptoWalletAddressRepository, times(1)).save(any(CryptoWalletAddress.class));
   }
 }

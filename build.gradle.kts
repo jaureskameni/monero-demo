@@ -3,7 +3,8 @@ import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
     java
-    id("org.springframework.boot") version "3.2.5"
+    id("org.springframework.boot") version "3.5.5"
+    id("io.spring.dependency-management") version "1.1.7"
     id("org.openapi.generator") version "7.11.0"
     id("com.diffplug.spotless") version "7.0.4" apply true
 }
@@ -20,30 +21,34 @@ java {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+
+    // Lombok
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    testCompileOnly("org.projectlombok:lombok:1.18.32")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
 
     // POSTGRES
     implementation("org.postgresql:postgresql")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
     // Mapstruct
     implementation("org.mapstruct:mapstruct:$mapstructVersion")

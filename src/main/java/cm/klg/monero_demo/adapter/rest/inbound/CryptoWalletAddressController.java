@@ -4,6 +4,7 @@ import cm.klg.generated.monero.api.CryptoWalletAddressApi;
 import cm.klg.generated.monero.dto.CryptoCurrencyTypeDTO;
 import cm.klg.generated.monero.dto.CryptoWalletAddressResponseDTO;
 import cm.klg.monero_demo.application.usecase.CreateCryptoWalletUseCase;
+import cm.klg.monero_demo.domain.cryptocurrency.CryptoCurrency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,16 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class CryptoWalletAddressController implements CryptoWalletAddressApi {
 
   private final CreateCryptoWalletUseCase createCryptoWalletUseCase;
+  private final RestMapper restMapper;
+  private final CryptoCurrencyMapper cryptoCurrencyMapper;
 
   @Override
   public ResponseEntity<CryptoWalletAddressResponseDTO> createCryptoWalletAddress(
       CryptoCurrencyTypeDTO currency) {
-    var wallet = createCryptoWalletUseCase.create(currency.name());
+
+
+    var wallet = createCryptoWalletUseCase.create(CryptoCurrency.valueOf(currency.name()));
+
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(
-            new CryptoWalletAddressResponseDTO()
-                .id(wallet.id())
-                .type(CryptoCurrencyTypeDTO.valueOf(wallet.type()))
-                .value(wallet.value()));
+        .body(restMapper.toCryptoWalletAddressDTO(wallet));
   }
 }

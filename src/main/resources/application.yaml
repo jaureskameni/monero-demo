@@ -15,6 +15,9 @@ spring:
     properties:
       hibernate:
         dialect: "org.hibernate.dialect.PostgreSQLDialect"
+        format_sql: true
 monero:
   rpc:
-    url: "${RPC_URI:http://localhost:28083/json_rpc}"
+    url: "http://localhost:28083/json_rpc"
+    username: ""
+    password: ""

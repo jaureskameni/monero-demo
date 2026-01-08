@@ -10,6 +10,16 @@ class ApplicationsConf implements Configurations {
 
   @Override
   public String url() {
-    return applicationProperties.getRpcProperties().getUrl();
+    return applicationProperties.getRpc().getUrl();
+  }
+
+  @Override
+  public String username() {
+    return applicationProperties.getRpc().getUsername();
+  }
+
+  @Override
+  public String password() {
+    return applicationProperties.getRpc().getPassword();
   }
 }

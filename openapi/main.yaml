@@ -19,7 +19,7 @@ paths:
       operationId: "createCryptoWalletAddress"
       parameters:
         - name: "currency"
-          in: "path"
+          in: "query"
           description: "crypto currency"
           required: true
           schema:

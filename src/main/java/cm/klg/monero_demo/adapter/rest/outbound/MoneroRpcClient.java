@@ -1,72 +1,45 @@
 package cm.klg.monero_demo.adapter.rest.outbound;
 
-import static cm.klg.monero_demo.utils.Constants.ACCOUNT_INDEX;
-import static cm.klg.monero_demo.utils.Constants.ADDRESS;
-import static cm.klg.monero_demo.utils.Constants.ID;
-import static cm.klg.monero_demo.utils.Constants.JSONRPC;
-import static cm.klg.monero_demo.utils.Constants.JSONRPCVALUE;
-import static cm.klg.monero_demo.utils.Constants.LABEL;
-import static cm.klg.monero_demo.utils.Constants.METHOD;
-import static cm.klg.monero_demo.utils.Constants.PARAMS;
-import static cm.klg.monero_demo.utils.Constants.RESULT;
-
 import cm.klg.monero_demo.application.outbound.MoneroWalletClient;
 import cm.klg.monero_demo.domain.exception.MoneroRpcException;
 import cm.klg.monero_demo.utils.RpcMethode;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Map;
+import cm.klg.monero_demo.utils.data.CreateSubaddressParams;
+import cm.klg.monero_demo.utils.data.CreateSubaddressResult;
+import cm.klg.monero_demo.utils.data.MoneroRequest;
+import cm.klg.monero_demo.utils.data.MoneroResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 
 @Slf4j
 @RequiredArgsConstructor
 public class MoneroRpcClient implements MoneroWalletClient {
 
   private final RestClient restClient;
+  private final ObjectMapper objectMapper;
 
   @Override
-  public String createSubAddress(String label) {
-    Map<String, Object> request =
-        Map.of(
-            JSONRPC,
-            JSONRPCVALUE,
-            ID,
-            "0",
-            METHOD,
-            RpcMethode.CREATE_ADDRESS.getMethodName(),
-            PARAMS,
-            Map.of(ACCOUNT_INDEX, 0, LABEL, label));
+  public String createSubAddress(String label) throws MoneroRpcException {
+    CreateSubaddressParams params = new CreateSubaddressParams(0, label);
+    CreateSubaddressResult result =
+        callRpc(RpcMethode.CREATE_ADDRESS.getMethodName(), params, CreateSubaddressResult.class);
+    return result.address();
+  }
 
-    try {
-      ResponseEntity<JsonNode> responseEntity =
-          restClient
-              .post()
-              .contentType(MediaType.APPLICATION_JSON)
-              .body(request)
-              .retrieve()
-              .toEntity(JsonNode.class);
+  private <T> T callRpc(String method, Object params, Class<T> resultType)
+      throws MoneroRpcException {
+    MoneroRequest request = new MoneroRequest(method, params);
 
-      if (!responseEntity.getStatusCode().is2xxSuccessful() || !responseEntity.hasBody()) {
-        throw new MoneroRpcException(
-            "Failed to create sub-address. HTTP status: " + responseEntity.getStatusCode());
-      }
+    MoneroResponse response = restClient.post().body(request).retrieve().body(MoneroResponse.class);
 
-      JsonNode response = responseEntity.getBody();
-      if (response.has("error")) {
-        String errorMessage = response.get("error").get("message").asText();
-        log.error("Monero RPC error: {}", errorMessage);
-        throw new MoneroRpcException("Monero RPC error: " + errorMessage);
-      }
-
-      return response.get(RESULT).get(ADDRESS).asText();
-
-    } catch (RestClientException e) {
-      log.error("Error communicating with Monero Wallet RPC", e);
-      throw new MoneroRpcException("Error communicating with Monero Wallet RPC", e);
+    if (response != null && response.error() != null) {
+      throw new MoneroRpcException("Monero RPC Error: " + response.error().message());
     }
+    if (response == null || response.result() == null) {
+      throw new MoneroRpcException("Monero RPC Error: No response or result received");
+    }
+
+    return objectMapper.convertValue(response.result(), resultType);
   }
 }

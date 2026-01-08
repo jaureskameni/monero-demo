@@ -11,17 +11,19 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(MoneroRpcException.class)
-    ProblemDetail handleMoneroRpcException(MoneroRpcException e) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
-        problemDetail.setTitle("Monero Service Unavailable");
-        return problemDetail;
-    }
+  @ExceptionHandler(MoneroRpcException.class)
+  ProblemDetail handleMoneroRpcException(MoneroRpcException e) {
+    ProblemDetail problemDetail =
+        ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
+    problemDetail.setTitle("Monero Service Unavailable");
+    return problemDetail;
+  }
 
-    @ExceptionHandler(ResourceAlreadyExistsException.class)
-    ProblemDetail handleResourceAlreadyExistsException(ResourceAlreadyExistsException e) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
-        problemDetail.setTitle("Resource Already Exists");
-        return problemDetail;
-    }
+  @ExceptionHandler(ResourceAlreadyExistsException.class)
+  ProblemDetail handleResourceAlreadyExistsException(ResourceAlreadyExistsException e) {
+    ProblemDetail problemDetail =
+        ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+    problemDetail.setTitle("Resource Already Exists");
+    return problemDetail;
+  }
 }
