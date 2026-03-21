@@ -5,11 +5,10 @@ import cm.klg.monero_demo.application.outbound.MoneroWalletClient;
 import cm.klg.monero_demo.domain.cryptocurrency.CryptoCurrency;
 import cm.klg.monero_demo.domain.cryptocurrency.CryptoWalletAddress;
 import cm.klg.monero_demo.domain.cryptocurrency.CryptoWalletAddressValue;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -19,30 +18,35 @@ public class CreateCryptoWalletUseCase {
   private final MoneroWalletClient moneroWalletClient;
   private final CryptoWalletAddressRepository cryptoWalletAddressRepository;
 
-  public CryptoWalletResponse create(CryptoCurrency cryptoCurrency) {
+  public CryptoWalletResponse create(CryptoCurrency currency) {
 
-    String subAddress = moneroWalletClient.createSubAddress(cryptoCurrency.name());
-
-    CryptoWalletAddress cryptoWalletAddress =
-        CryptoWalletAddress.of(new CryptoWalletAddressValue(subAddress), cryptoCurrency);
+    // 1. On crée l'objet avec l'adresse à null
+    CryptoWalletAddress cryptoWalletAddress = CryptoWalletAddress.of(currency);
 
     try {
+      // 3. Appel au RPC Monero en utilisant l'ID comme label
+      String subAddress = moneroWalletClient.createSubAddress(cryptoWalletAddress.getId());
 
-      cryptoWalletAddressRepository.save(cryptoWalletAddress);
+      // 4. On met à jour l'objet avec la valeur retournée
+      cryptoWalletAddress.addCryptoWalletValue(new CryptoWalletAddressValue(subAddress));
+
+      // 5. On enregistre la mise à jour
+      cryptoWalletAddressRepository.insert(cryptoWalletAddress);
+
+      // 6. Construction de l'objet de retour
+      return new CryptoWalletResponse(
+          cryptoWalletAddress.getId().value(),
+          cryptoWalletAddress.getValue().value(),
+          cryptoWalletAddress.getCurrency().name());
 
     } catch (Exception e) {
-
       log.error(
-          "CRITICAL: Monero sub-address was created ('{}') but failed to save to the database. An"
-              + " orphaned address now exists. Manual intervention may be required.",
-          subAddress,
+          "Error creating Monero address for ID '{}'. Intent is saved in DB.",
+          cryptoWalletAddress.getId().value(),
           e);
-
       throw e;
     }
-
-    return new CryptoWalletResponse(cryptoWalletAddress.getId().value(), cryptoWalletAddress.getValue().value(), cryptoWalletAddress.getType().name());
   }
 
-  public record CryptoWalletResponse(UUID id, String walletAddressValue, String currencyType){}
+  public record CryptoWalletResponse(UUID id, String walletAddressValue, String currency) {}
 }

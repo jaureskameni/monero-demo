@@ -6,4 +6,12 @@ public interface Configurations {
   String username();
 
   String password();
+
+  boolean enabled();
+
+  int accountIndex();
+
+  String rpcVersion();
+
+  String rpcId();
 }

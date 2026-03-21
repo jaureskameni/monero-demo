@@ -34,10 +34,7 @@ configurations {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
 
     // Lombok
     compileOnly("org.projectlombok:lombok:1.18.32")
@@ -59,6 +56,7 @@ dependencies {
     implementation("io.swagger:swagger-annotations:1.6.11")
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+    implementation("org.apache.httpcomponents.client5:httpclient5")
 }
 
 tasks.withType<Test> {

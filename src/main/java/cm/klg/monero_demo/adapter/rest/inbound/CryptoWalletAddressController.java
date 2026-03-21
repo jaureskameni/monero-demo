@@ -16,12 +16,10 @@ public class CryptoWalletAddressController implements CryptoWalletAddressApi {
 
   private final CreateCryptoWalletUseCase createCryptoWalletUseCase;
   private final RestMapper restMapper;
-  private final CryptoCurrencyMapper cryptoCurrencyMapper;
 
   @Override
   public ResponseEntity<CryptoWalletAddressResponseDTO> createCryptoWalletAddress(
       CryptoCurrencyTypeDTO currency) {
-
 
     var wallet = createCryptoWalletUseCase.create(CryptoCurrency.valueOf(currency.name()));
 

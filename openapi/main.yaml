@@ -49,4 +49,4 @@ components:
           $ref: "#/components/schemas/CryptoCurrencyTypeDTO"
     CryptoCurrencyTypeDTO:
       enum:
-        - "MONERO"
+        - "XMR"

@@ -16,8 +16,13 @@ spring:
       hibernate:
         dialect: "org.hibernate.dialect.PostgreSQLDialect"
         format_sql: true
-monero:
-  rpc:
-    url: "http://localhost:28083/json_rpc"
-    username: ""
-    password: ""
+jkdev:
+  monero:
+    rpc:
+      id: "0"
+      version: "2.0"
+      enabled: false
+      url: "http://localhost:28083/json_rpc"
+      username: ""
+      password: ""
+      account-index: 0

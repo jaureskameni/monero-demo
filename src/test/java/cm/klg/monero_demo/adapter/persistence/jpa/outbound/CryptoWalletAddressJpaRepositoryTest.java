@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 
 import cm.klg.monero_demo.domain.cryptocurrency.CryptoCurrency;
 import cm.klg.monero_demo.domain.cryptocurrency.CryptoWalletAddress;
-import cm.klg.monero_demo.domain.cryptocurrency.CryptoWalletAddressValue;
 import cm.klg.monero_demo.domain.exception.ResourceAlreadyExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,17 +23,16 @@ class CryptoWalletAddressJpaRepositoryTest {
   @InjectMocks private CryptoWalletAddressJpaRepository cryptoWalletAddressJpaRepository;
 
   @Test
-  void save_shouldCallSpringRepository_whenSuccessful() {
+  void insert_shouldCallSpringRepository_whenSuccessful() {
     // Given
-    CryptoWalletAddress cryptoWalletAddress =
-        CryptoWalletAddress.of(new CryptoWalletAddressValue("some-address"), CryptoCurrency.XMR);
+    CryptoWalletAddress cryptoWalletAddress = CryptoWalletAddress.of(CryptoCurrency.XMR);
     CryptoWalletAddressJpa jpaEntity = new CryptoWalletAddressJpa();
 
     when(jpaMapper.fromCryptoWalletAddress(cryptoWalletAddress)).thenReturn(jpaEntity);
     when(cryptoWalletAddressSpringRepository.save(jpaEntity)).thenReturn(jpaEntity);
 
     // When
-    cryptoWalletAddressJpaRepository.save(cryptoWalletAddress);
+    cryptoWalletAddressJpaRepository.insert(cryptoWalletAddress);
 
     // Then
     verify(jpaMapper, times(1)).fromCryptoWalletAddress(cryptoWalletAddress);
@@ -42,11 +40,9 @@ class CryptoWalletAddressJpaRepositoryTest {
   }
 
   @Test
-  void save_shouldThrowResourceAlreadyExistsException_whenConstraintViolated() {
+  void insert_shouldThrowResourceAlreadyExistsException_whenConstraintViolated() {
     // Given
-    CryptoWalletAddress cryptoWalletAddress =
-        CryptoWalletAddress.of(
-            new CryptoWalletAddressValue("duplicate-address"), CryptoCurrency.XMR);
+    CryptoWalletAddress cryptoWalletAddress = CryptoWalletAddress.of(CryptoCurrency.XMR);
     CryptoWalletAddressJpa jpaEntity = new CryptoWalletAddressJpa();
 
     when(jpaMapper.fromCryptoWalletAddress(cryptoWalletAddress)).thenReturn(jpaEntity);
@@ -56,7 +52,7 @@ class CryptoWalletAddressJpaRepositoryTest {
     // When & Then
     assertThrows(
         ResourceAlreadyExistsException.class,
-        () -> cryptoWalletAddressJpaRepository.save(cryptoWalletAddress));
+        () -> cryptoWalletAddressJpaRepository.insert(cryptoWalletAddress));
 
     verify(jpaMapper, times(1)).fromCryptoWalletAddress(cryptoWalletAddress);
     verify(cryptoWalletAddressSpringRepository, times(1)).save(jpaEntity);
